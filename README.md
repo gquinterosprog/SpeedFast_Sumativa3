@@ -29,7 +29,7 @@ No publiques la contraseña ni la incluyas en el código o en GitHub.
 
 - **Repartidores:** registrar, listar, editar y eliminar. Selecciona una fila para editar o eliminar.
 - **Pedidos:** registrar dirección, tipo y estado; listar, editar y eliminar. Solo se ofrecen los tres tipos y los tres estados del esquema de esta sumativa.
-- **Entregas:** seleccionar un pedido y repartidor ya registrados, ingresar fecha `AAAA-MM-DD` y hora `HH:mm`, y registrar, listar, editar o eliminar.
+- **Entregas:** seleccionar un pedido y repartidor ya registrados, ingresar fecha `AAAA-MM-DD` y hora `HH:mm`, y registrar, listar, editar o eliminar. Los filtros permiten mostrar entregas de un pedido, de un repartidor o de ambos.
 - Cada operación actualiza las tablas y los desplegables con datos consultados desde MySQL. Si un pedido o repartidor tiene entregas asociadas, la clave foránea impide eliminarlo hasta quitar primero esas entregas.
 
 ## Organización

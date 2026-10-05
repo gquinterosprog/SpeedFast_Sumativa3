@@ -21,8 +21,12 @@ class PanelEntregas extends JPanel {
     private final RepartidorDAO repartidorDAO = new RepartidorDAO();
     private final JComboBox<RegistroPedido> pedidos = new JComboBox<>();
     private final JComboBox<RegistroRepartidor> repartidores = new JComboBox<>();
+    private final JComboBox<Object> filtroPedido = new JComboBox<>();
+    private final JComboBox<Object> filtroRepartidor = new JComboBox<>();
     private final JTextField fecha = new JTextField(LocalDate.now().toString(), 10);
     private final JTextField hora = new JTextField(LocalTime.now().withSecond(0).withNano(0).toString(), 7);
+    private java.util.List<RegistroEntrega> registros = java.util.List.of();
+    private boolean recargandoFiltros;
     private final DefaultTableModel modelo = new DefaultTableModel(
             new String[]{"ID", "Pedido ID", "Repartidor ID", "Fecha", "Hora"}, 0) {
         @Override public boolean isCellEditable(int fila, int columna) { return false; }
@@ -47,6 +51,14 @@ class PanelEntregas extends JPanel {
         formulario.add(new JLabel("Hora (HH:mm):"));
         formulario.add(hora);
 
+        JPanel filtros = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        filtros.add(new JLabel("Ver entregas del pedido:"));
+        filtroPedido.setPreferredSize(new Dimension(230, 26));
+        filtros.add(filtroPedido);
+        filtros.add(new JLabel("Repartidor:"));
+        filtroRepartidor.setPreferredSize(new Dimension(190, 26));
+        filtros.add(filtroRepartidor);
+
         JButton crear = new JButton("Registrar");
         JButton actualizar = new JButton("Editar seleccionado");
         JButton eliminar = new JButton("Eliminar seleccionado");
@@ -58,6 +70,7 @@ class PanelEntregas extends JPanel {
         acciones.add(recargar);
         JPanel superior = new JPanel(new BorderLayout());
         superior.add(formulario, BorderLayout.NORTH);
+        superior.add(filtros, BorderLayout.CENTER);
         superior.add(acciones, BorderLayout.SOUTH);
         add(superior, BorderLayout.NORTH);
         add(new JScrollPane(tabla), BorderLayout.CENTER);
@@ -76,6 +89,8 @@ class PanelEntregas extends JPanel {
         actualizar.addActionListener(e -> actualizar());
         eliminar.addActionListener(e -> eliminar());
         recargar.addActionListener(e -> refrescar());
+        filtroPedido.addActionListener(e -> aplicarFiltro());
+        filtroRepartidor.addActionListener(e -> aplicarFiltro());
     }
 
     void refrescar() {
@@ -84,18 +99,78 @@ class PanelEntregas extends JPanel {
                     : ((RegistroPedido) pedidos.getSelectedItem()).getId();
             Integer repartidorActual = repartidores.getSelectedItem() == null ? null
                     : ((RegistroRepartidor) repartidores.getSelectedItem()).getId();
+            Integer pedidoFiltrado = idPedidoFiltrado();
+            Integer repartidorFiltrado = idRepartidorFiltrado();
+            recargandoFiltros = true;
             pedidos.removeAllItems();
-            for (RegistroPedido p : pedidoDAO.readAll()) pedidos.addItem(p);
+            filtroPedido.removeAllItems();
+            filtroPedido.addItem("Todos los pedidos");
+            for (RegistroPedido p : pedidoDAO.readAll()) {
+                pedidos.addItem(p);
+                filtroPedido.addItem(p);
+            }
             repartidores.removeAllItems();
-            for (RegistroRepartidor r : repartidorDAO.readAll()) repartidores.addItem(r);
+            filtroRepartidor.removeAllItems();
+            filtroRepartidor.addItem("Todos los repartidores");
+            for (RegistroRepartidor r : repartidorDAO.readAll()) {
+                repartidores.addItem(r);
+                filtroRepartidor.addItem(r);
+            }
             if (pedidoActual != null) seleccionarPedido(pedidoActual);
             if (repartidorActual != null) seleccionarRepartidor(repartidorActual);
-            modelo.setRowCount(0);
-            for (RegistroEntrega e : dao.readAll()) {
-                modelo.addRow(new Object[]{e.getId(), e.getPedidoId(), e.getRepartidorId(),
-                        e.getFecha(), e.getHora()});
+            if (pedidoFiltrado != null) seleccionarFiltroPedido(pedidoFiltrado);
+            if (repartidorFiltrado != null) seleccionarFiltroRepartidor(repartidorFiltrado);
+            registros = dao.readAll();
+            recargandoFiltros = false;
+            aplicarFiltro();
+        } catch (SQLException e) {
+            Mensajes.errorSql(this, e);
+        } finally {
+            recargandoFiltros = false;
+        }
+    }
+
+    private Integer idPedidoFiltrado() {
+        Object valor = filtroPedido.getSelectedItem();
+        return valor instanceof RegistroPedido p ? p.getId() : null;
+    }
+
+    private Integer idRepartidorFiltrado() {
+        Object valor = filtroRepartidor.getSelectedItem();
+        return valor instanceof RegistroRepartidor r ? r.getId() : null;
+    }
+
+    private void seleccionarFiltroPedido(int id) {
+        for (int i = 1; i < filtroPedido.getItemCount(); i++) {
+            Object valor = filtroPedido.getItemAt(i);
+            if (valor instanceof RegistroPedido p && p.getId() == id) {
+                filtroPedido.setSelectedIndex(i);
+                return;
             }
-        } catch (SQLException e) { Mensajes.errorSql(this, e); }
+        }
+    }
+
+    private void seleccionarFiltroRepartidor(int id) {
+        for (int i = 1; i < filtroRepartidor.getItemCount(); i++) {
+            Object valor = filtroRepartidor.getItemAt(i);
+            if (valor instanceof RegistroRepartidor r && r.getId() == id) {
+                filtroRepartidor.setSelectedIndex(i);
+                return;
+            }
+        }
+    }
+
+    private void aplicarFiltro() {
+        if (recargandoFiltros) return;
+        Integer idPedido = idPedidoFiltrado();
+        Integer idRepartidor = idRepartidorFiltrado();
+        modelo.setRowCount(0);
+        for (RegistroEntrega e : registros) {
+            if (idPedido != null && e.getPedidoId() != idPedido) continue;
+            if (idRepartidor != null && e.getRepartidorId() != idRepartidor) continue;
+            modelo.addRow(new Object[]{e.getId(), e.getPedidoId(), e.getRepartidorId(),
+                    e.getFecha(), e.getHora()});
+        }
     }
 
     private void seleccionarPedido(int id) {
