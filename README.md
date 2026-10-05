@@ -1,6 +1,6 @@
 # SpeedFast — Sumativa 3 de POO II
 
-Aplicación de escritorio para gestionar repartidores, pedidos y entregas con Java Swing, JDBC y MySQL. Parte del proyecto de la semana 5: las clases previas de polimorfismo y concurrencia se conservan, y `MainSemana5` permite seguir ejecutando esa simulación por consola. Para la sumativa 3 se ejecuta `speedfast.app.Main`.
+Aplicación de escritorio para gestionar repartidores, pedidos y entregas con Java Swing, JDBC y MySQL. Conserva las clases de polimorfismo y concurrencia del proyecto anterior. La aplicación se inicia desde `speedfast.app.Main`.
 
 ## Requisitos
 
