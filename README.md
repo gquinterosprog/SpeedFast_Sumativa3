@@ -11,8 +11,8 @@ Aplicación de escritorio para gestionar repartidores, pedidos y entregas con Ja
 ## Preparar la base de datos
 
 1. Iniciar MySQL Server.
-2. Abrir MySQL Workbench o la consola de MySQL.
-3. Ejecutar `database/speedfast_db.sql`. El script crea `speedfast_db` y las tablas `repartidores`, `pedidos` y `entregas` con sus claves foráneas.
+2. Ejecutar la aplicación. Con la clave correcta, esta crea `speedfast_db` y las tablas al iniciar por primera vez.
+3. Si prefieres preparar la base manualmente, ejecuta `database/speedfast_db.sql` en MySQL Workbench o en la consola. El script contiene el mismo esquema con sus claves foráneas.
 
 El ID de cada registro lo genera MySQL. No hay datos de ejemplo obligatorios; pueden agregarse desde la interfaz.
 
@@ -20,9 +20,8 @@ El ID de cada registro lo genera MySQL. No hay datos de ejemplo obligatorios; pu
 
 1. Abrir esta carpeta como proyecto en IntelliJ IDEA.
 2. Esperar a que Maven cargue `mysql-connector-j`.
-3. Configurar la ejecución de `speedfast.app.Main`.
-4. En **Run > Edit Configurations > Environment variables**, agregar `SPEEDFAST_DB_PASSWORD` con la clave local de MySQL. El programa usa `root` y `jdbc:mysql://localhost:3306/speedfast_db` por defecto. Si tu configuración es diferente, agrega `SPEEDFAST_DB_USER` y/o `SPEEDFAST_DB_URL`.
-5. Ejecutar `Main`.
+3. Ejecutar `speedfast.app.Main`. Al abrir, la aplicación solicitará la contraseña local de MySQL en un cuadro de diálogo. No la guarda en el proyecto.
+4. El programa usa `root` y `jdbc:mysql://localhost:3306/speedfast_db` por defecto. Si tu configuración es diferente, agrega `SPEEDFAST_DB_USER` y/o `SPEEDFAST_DB_URL` en **Run > Edit Configurations > Environment variables**.
 
 No publiques la contraseña ni la incluyas en el código o en GitHub.
 
